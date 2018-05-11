@@ -7260,6 +7260,7 @@ bool Vers_parse_info::check_sys_fields(const LString &table_name,
 
   const char *row_start_name= row_start->field_name.str;
   const char *row_end_name= row_end->field_name.str;
+  vers_sys_type_t check_unit= VERS_UNDEFINED;
 
   if (has_timestamp_type_handler(row_start))
   {
@@ -7308,6 +7309,8 @@ bool Vers_parse_info::check_sys_fields(const LString &table_name,
     require_timestamp(row_start_name, table_name);
     return true;
   }
+
+  DBUG_ASSERT(check_unit);
 
   if (check_unit == VERS_TRX_ID && !TR_table::use_transaction_registry)
   {

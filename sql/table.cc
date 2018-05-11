@@ -8862,28 +8862,6 @@ bool TR_table::check(bool error)
   return false;
 }
 
-void vers_select_conds_t::resolve_units(bool timestamps_only)
-{
-  DBUG_ASSERT(type != SYSTEM_TIME_UNSPECIFIED);
-  DBUG_ASSERT(start.item);
-  start.resolve_unit(timestamps_only);
-  end.resolve_unit(timestamps_only);
-}
-
-void Vers_history_point::resolve_unit(bool timestamps_only)
-{
-  if (item && unit == VERS_UNDEFINED)
-  {
-    if (item->type() == Item::FIELD_ITEM || timestamps_only)
-      unit= VERS_TIMESTAMP;
-    else if (item->result_type() == INT_RESULT ||
-             item->result_type() == REAL_RESULT)
-      unit= VERS_TRX_ID;
-    else
-      unit= VERS_TIMESTAMP;
-  }
-}
-
 void Vers_history_point::fix_item()
 {
   if (item && item->decimals == 0 && item->type() == Item::FUNC_ITEM &&

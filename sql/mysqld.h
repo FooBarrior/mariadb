@@ -183,11 +183,11 @@ extern const char *log_backup_output_str;
 enum vers_system_time_t
 {
   SYSTEM_TIME_UNSPECIFIED = 0,
+  SYSTEM_TIME_ALL,
   SYSTEM_TIME_AS_OF,
   SYSTEM_TIME_FROM_TO,
   SYSTEM_TIME_BETWEEN,
-  SYSTEM_TIME_BEFORE,
-  SYSTEM_TIME_ALL
+  SYSTEM_TIME_BEFORE
 };
 
 struct vers_asof_timestamp_t

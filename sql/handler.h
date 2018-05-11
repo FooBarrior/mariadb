@@ -1907,7 +1907,6 @@ enum vers_sys_type_t
 struct Vers_parse_info
 {
   Vers_parse_info() :
-    check_unit(VERS_UNDEFINED),
     versioned_fields(false),
     unversioned_fields(false)
   {}
@@ -1925,7 +1924,6 @@ struct Vers_parse_info
 
   start_end_t system_time;
   start_end_t as_row;
-  vers_sys_type_t check_unit;
 
   void set_system_time(LString start, LString end)
   {

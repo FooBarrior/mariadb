@@ -1826,7 +1826,6 @@ public:
   }
   void empty() { unit= VERS_UNDEFINED; item= NULL; }
   void print(String *str, enum_query_type, const char *prefix, size_t plen);
-  void resolve_unit(bool timestamps_only);
 };
 
 struct vers_select_conds_t
@@ -1851,7 +1850,17 @@ struct vers_select_conds_t
     type= _type;
     used= false;
     start= _start;
-    end= _end;
+    if (type >= SYSTEM_TIME_AS_OF)
+    {
+      if (!start.unit)
+        start.unit= VERS_TIMESTAMP;
+      if (type > SYSTEM_TIME_AS_OF)
+      {
+        end= _end;
+        if (!end.unit)
+          end.unit= start.unit;
+      }
+    }
   }
 
   vers_select_conds_t& operator= (const vers_select_conds_t& src)
@@ -1879,7 +1888,6 @@ struct vers_select_conds_t
   {
     return type != SYSTEM_TIME_UNSPECIFIED;
   }
-  void resolve_units(bool timestamps_only);
 };
 
 /*
