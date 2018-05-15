@@ -55,9 +55,6 @@ protected:
   TABLE_LIST &about;
   SString_t vtmd_name;
 
-private:
-  VTMD_table(const VTMD_table&); // prohibit copying references
-
 public:
   enum {
     FLD_START= 0,
@@ -81,7 +78,8 @@ public:
 
   bool create(THD *thd);
   bool find_record(ulonglong sys_trx_end, bool &found);
-  bool open(THD *thd, Local_da &local_da, bool *created= NULL);
+  void prepare_for_read(THD *thd);
+  bool open(THD *thd, Local_da &local_da, bool *created);
   bool update(THD *thd, const char* archive_name= NULL);
   bool setup_select(THD *thd);
 
