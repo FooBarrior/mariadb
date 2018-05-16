@@ -6429,7 +6429,7 @@ static bool execute_sqlcom_select(THD *thd, TABLE_LIST *all_tables)
         VTMD_exists *vtmd= new (vtmd_array + i) VTMD_exists(*table);
         if (vtmd->check_exists(thd))
           return 1;
-        vtmd->prepare_for_read(thd);
+        vtmd->add_to_prelocking_list(thd);
         i++;
       }
     }

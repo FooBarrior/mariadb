@@ -87,7 +87,7 @@ VTMD_table::find_record(ulonglong sys_trx_end, bool &found)
 
 
 void
-VTMD_table::prepare_for_read(THD *thd)
+VTMD_table::add_to_prelocking_list(THD *thd)
 {
   vtmd.init_one_table_for_prelocking(
     DB_WITH_LEN(about),
@@ -549,7 +549,7 @@ VTMD_table::find_archive_name(THD *thd, String &out)
   TABLE_LIST *table_list= ctx.table_list;
   TABLE_LIST *first_name_resolution_table= ctx.first_name_resolution_table;
   table_map map = vtmd.table->map;
-  ctx.table_list= &vtmd; //thd->lex->query_tables;
+  ctx.table_list= &vtmd;
   ctx.first_name_resolution_table= &vtmd;
   vtmd.table->map= 1;
   vtmd.table->use_all_columns();

@@ -78,7 +78,7 @@ public:
 
   bool create(THD *thd);
   bool find_record(ulonglong sys_trx_end, bool &found);
-  void prepare_for_read(THD *thd);
+  void add_to_prelocking_list(THD *thd);
   bool open(THD *thd, Local_da &local_da, bool *created);
   bool update(THD *thd, const char* archive_name= NULL);
   bool setup_select(THD *thd);

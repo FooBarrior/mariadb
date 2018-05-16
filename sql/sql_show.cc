@@ -1303,7 +1303,7 @@ mysqld_show_create(THD *thd, TABLE_LIST *table_list)
     VTMD_exists &vtmd = *new (thd->alloc(sizeof(VTMD_exists))) VTMD_exists(*table_list);
     if (vtmd.check_exists(thd))
       goto exit;
-    vtmd.prepare_for_read(thd);
+    vtmd.add_to_prelocking_list(thd);
     if (open_and_lock_tables(thd, table_list, TRUE, 0))
       goto exit;
     if (vtmd.setup_select(thd))
