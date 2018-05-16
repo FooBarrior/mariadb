@@ -1300,7 +1300,7 @@ mysqld_show_create(THD *thd, TABLE_LIST *table_list)
   if (versioned)
   {
     DBUG_ASSERT(table_list->vers_conditions == FOR_SYSTEM_TIME_AS_OF);
-    VTMD_exists vtmd(*table_list);
+    VTMD_exists &vtmd = *new (thd->alloc(sizeof(VTMD_exists))) VTMD_exists(*table_list);
     if (vtmd.check_exists(thd))
       goto exit;
     vtmd.prepare_for_read(thd);

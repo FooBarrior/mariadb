@@ -6406,27 +6406,40 @@ static bool execute_sqlcom_select(THD *thd, TABLE_LIST *all_tables)
   if (check_dependencies_in_with_clauses(lex->with_clauses_list))
     return 1;
 
-  Dynamic_array<VTMD_exists> vtmd_array;
+  size_t vers_table_count= 0;
 
   if (thd->variables.vers_alter_history == VERS_ALTER_HISTORY_SURVIVE)
   {
     for (TABLE_LIST *table= all_tables; table; table= table->next_local)
     {
       if (table->vers_conditions)
+        vers_table_count++;
+    }
+  }
+
+  VTMD_exists *vtmd_array= (VTMD_exists*)thd->calloc(sizeof (VTMD_exists) * vers_table_count);
+
+  if (thd->variables.vers_alter_history == VERS_ALTER_HISTORY_SURVIVE)
+  {
+    size_t i = 0;
+    for (TABLE_LIST *table= all_tables; table; table= table->next_local)
+    {
+      if (table->vers_conditions)
       {
-        vtmd_array.append(*table);
-        if (vtmd_array.back()->check_exists(thd))
+        VTMD_exists *vtmd= new (vtmd_array + i) VTMD_exists(*table);
+        if (vtmd->check_exists(thd))
           return 1;
-        vtmd_array.back()->prepare_for_read(thd);
+        vtmd->prepare_for_read(thd);
+        i++;
       }
     }
   }
 
   if (!(res= open_and_lock_tables(thd, all_tables, TRUE, 0)))
   {
-    for (size_t i = 0; i < vtmd_array.elements(); i++)
+    for (size_t i= 0; i < vers_table_count; i++)
     {
-      VTMD_exists &vtmd = vtmd_array.at(i);
+      VTMD_exists &vtmd= vtmd_array[i];
       if (vtmd.exists && vtmd.setup_select(thd))
         return 1;
     }
