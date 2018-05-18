@@ -543,7 +543,7 @@ VTMD_table::find_archive_name(THD *thd, String &out)
   Local_da local_da(thd, ER_VERS_VTMD_ERROR);
 
   // tables should be already locked before running this method
-  DBUG_ASSERT(thd->locked_tables_mode);
+   DBUG_ASSERT(thd->lock);
 
   Name_resolution_context &ctx= thd->lex->select_lex.context;
   TABLE_LIST *table_list= ctx.table_list;
