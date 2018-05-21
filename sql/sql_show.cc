@@ -1179,6 +1179,7 @@ mysqld_show_create_get_fields(THD *thd, TABLE_LIST *table_list,
   /* We want to preserve the tree for views. */
   thd->lex->context_analysis_only|= CONTEXT_ANALYSIS_ONLY_VIEW;
 
+  if (!table_list->table) /* table could be preopened by vtmd */
   {
     /*
       Use open_tables() directly rather than
@@ -1299,7 +1300,12 @@ mysqld_show_create(THD *thd, TABLE_LIST *table_list)
   if (versioned)
   {
     DBUG_ASSERT(table_list->vers_conditions == FOR_SYSTEM_TIME_AS_OF);
-    VTMD_table vtmd(*table_list);
+    VTMD_exists &vtmd = *new (thd->alloc(sizeof(VTMD_exists))) VTMD_exists(*table_list);
+    if (vtmd.check_exists(thd))
+      goto exit;
+    vtmd.add_to_prelocking_list(thd);
+    if (open_and_lock_tables(thd, table_list, TRUE, 0))
+      goto exit;
     if (vtmd.setup_select(thd))
       goto exit;
   }

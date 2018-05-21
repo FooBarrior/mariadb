@@ -86,6 +86,22 @@ VTMD_table::find_record(ulonglong sys_trx_end, bool &found)
 }
 
 
+void
+VTMD_table::add_to_prelocking_list(THD *thd)
+{
+  vtmd.init_one_table_for_prelocking(
+    DB_WITH_LEN(about),
+    XSTRING_WITH_LEN(vtmd_name),
+    vtmd_name,
+    TL_READ,
+    true,
+    thd->lex->query_tables->belong_to_view,
+    thd->lex->query_tables->trg_event_map,
+    &thd->lex->query_tables_last);
+
+  vtmd.prelocking_placeholder = TABLE_LIST::USER;
+}
+
 bool
 VTMD_table::open(THD *thd, Local_da &local_da, bool *created)
 {
@@ -525,8 +541,9 @@ VTMD_table::find_archive_name(THD *thd, String &out)
   SELECT_LEX &select_lex= thd->lex->select_lex;
 
   Local_da local_da(thd, ER_VERS_VTMD_ERROR);
-  if (open(thd, local_da))
-    return true;
+
+  // tables should be already locked before running this method
+   DBUG_ASSERT(thd->lock);
 
   Name_resolution_context &ctx= thd->lex->select_lex.context;
   TABLE_LIST *table_list= ctx.table_list;
@@ -535,6 +552,7 @@ VTMD_table::find_archive_name(THD *thd, String &out)
   ctx.table_list= &vtmd;
   ctx.first_name_resolution_table= &vtmd;
   vtmd.table->map= 1;
+  vtmd.table->use_all_columns();
 
   vtmd.vers_conditions= about.vers_conditions;
   if ((error= vers_setup_select(thd, &vtmd, &conds, &select_lex)) ||
@@ -570,7 +588,6 @@ err:
   ctx.table_list= table_list;
   ctx.first_name_resolution_table= first_name_resolution_table;
   vtmd.table->map= map;
-  close_log_table(thd, &open_tables_backup);
   DBUG_ASSERT(!error || local_da.is_error());
   return error;
 }
